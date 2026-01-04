@@ -40,6 +40,16 @@ Chaos Mesh • Docker •  • NewRelic  Linux *
 
 ---
 
+
+### External Dependency Chaos: CDN / Edge Failures
+
+- Simulated DNS failures, TLS errors, and traffic blackholes
+- Observed frontend and API resilience under edge outages
+- Verified retries, fallbacks, and service mesh handling
+- Correlated metrics, logs, and traces to measure impact
+
+---
+
 ## Chaos Experiments
 
 - Pod termination
