@@ -1,0 +1,66 @@
+# apiVersion: argoproj.io/v1alpha1
+# kind: Application
+# metadata:
+#   name: {{ include "argocd.fullname" . }}-app
+#   namespace: {{ .Values.namespace | default "argocd" }}
+# spec:
+#   project: {{ .Values.application.project | default "default" }}
+#   source:
+#     repoURL: {{ .Values.deployment.repo }}
+#     targetRevision: HEAD
+#     path: {{ .Values.deployment.path }}
+#   destination:
+#     server: https://kubernetes.default.svc
+#     namespace: {{ .Values.deployment.namespace }}
+#   syncPolicy:
+#     automated:
+#       selfHeal: true
+#       prune: true
+
+
+--- 
+apiVersion: v1
+kind: Project
+metadata:
+  name: {{ .Values.application.project | default "default" }}
+  namespace: {{ .Values.namespace | default "argocd" }}
+spec:
+  description: {{ .Values.application.projectDescription | default "Default project" }}
+  sourceRepos:
+    - '*'
+  destinations:
+    - server: https://kubernetes.default.svc
+      namespace: '*'    
+
+
+
+--- 
+
+apiVersion: argoproj.io/v1alpha1
+kind: ApplicationSet
+metadata:
+  name: {{ include "argocd.fullname" . }}-appset
+  namespace: {{ .Values.namespace | default "default" }}
+spec:
+  goTemplate: true
+  goTemplateOptions: ["missingkey=error"]
+  generators:
+  - list:
+      elements:
+      {{if .Values.servers}}
+      {{- range $key, $value := .Values.servers }}
+      - cluster: {{ $key }}
+        url: {{ $value.url }}
+      {{- end }}    
+  template:
+    metadata:
+      name: '{{.cluster}}-boutique-app'
+    spec:
+      project: {{ .Values.application.project | default "default" }}
+      source:
+        repoURL: {{ .Values.deployment.repo }}
+        targetRevision: HEAD
+        path: {{ .Values.deployment.path }}
+      destination:
+        server: {{ .url }}
+        namespace: {{ .Values.deployment.namespace }}

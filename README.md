@@ -19,7 +19,7 @@ A production chaos engineering lab focused on **reliability, observability, and 
 
 Kubernetes • ArgoCD • Istio • Helm  
 Prometheus • Grafana • Alertmanager  
-Chaos Mesh • Docker •  • NewRelic  Linux *
+Chaos Mesh • Docker •  NewRelic • Linux *
 
 ---
 
