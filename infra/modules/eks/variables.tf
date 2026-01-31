@@ -7,6 +7,9 @@ variable "vpc_id" {
   type = string
 }
 
+variable "eks_version" {
+  type = string
+}
 
 variable "private_subnet_ids" {
   description = "Private  subnets "

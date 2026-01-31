@@ -6,7 +6,7 @@ module "eks_al2023" {
   version = "~> 21.0"
 
   name               = "${var.tags["Environment"]}-eks2"
-  kubernetes_version = "1.30"
+  kubernetes_version = var.eks_version
 
   # Enable accessing cluster from anywhere
   endpoint_public_access = true
@@ -77,6 +77,7 @@ resource "aws_security_group" "k8s-node-sg-default" {
     Team                                        = "DevOps"
     Terraform                                   = "true"
     "kubernetes.io/cluster/${module.eks_al2023.cluster_name}" = "owned"
+    "karpenter.sh/discovery" = module.eks_al2023.cluster_name
   }
 }
 

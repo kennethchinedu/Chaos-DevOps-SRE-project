@@ -27,3 +27,8 @@ output "public_sub2" {
 output "vpc_id" {
   value = aws_vpc.main.id
 }
+
+# output "region" {
+#   values = 
+
+# }

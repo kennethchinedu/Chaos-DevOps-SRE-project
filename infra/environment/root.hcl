@@ -45,7 +45,7 @@ provider "kubernetes" {
 provider "helm" {
   kubernetes = {
     config_path    = "~/.kube/config"
-    config_context = var.kubeconfig_context
+    config_context =  var.kubeconfig_context
   }
 }
 EOF

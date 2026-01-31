@@ -31,8 +31,10 @@ terraform {
   }
 }
 
+
+
 inputs = {
-  tags = local.tags_map
+  tags        = local.tags_map
 }
 
 

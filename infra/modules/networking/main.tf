@@ -20,7 +20,11 @@ resource "aws_subnet" "public_sub1" {
 
   tags = merge(
     var.tags,               # global tags from Terragrunt
-    { Name = "${var.tags["Environment"]}-pub-subnet1" }  # resource-specific tag
+    {
+      Name = "${var.tags["Environment"]}-pub-subnet1",
+      "kubernetes.io/cluster/${var.cluster_name}" = "owned",
+      "karpenter.sh/discovery" = var.cluster_name
+    }
   )
 }
 
@@ -33,7 +37,11 @@ resource "aws_subnet" "public_sub2" {
 
   tags = merge(
     var.tags,              
-    { Name = "${var.tags["Environment"]}-pub-subnet2" }  
+    {
+      Name = "${var.tags["Environment"]}-pub-subnet2",
+      "kubernetes.io/cluster/${var.cluster_name}" = "owned",
+      "karpenter.sh/discovery" = var.cluster_name
+    }
   )
 }
 
@@ -46,7 +54,11 @@ resource "aws_subnet" "pri_sub1" {
 
   tags = merge(
     var.tags,              
-    { Name = "${var.tags["Environment"]}-pri-subnet1" }  
+    {
+      Name = "${var.tags["Environment"]}-pri-subnet1",
+      "kubernetes.io/cluster/${var.cluster_name}" = "owned",
+      "karpenter.sh/discovery" = var.cluster_name
+    }
   )
 }
 
@@ -59,7 +71,11 @@ resource "aws_subnet" "pri_sub2" {
 
    tags = merge(
     var.tags,              
-    { Name = "${var.tags["Environment"]}-pri-subnet2" }  
+    {
+      Name = "${var.tags["Environment"]}-pri-subnet2",
+      "kubernetes.io/cluster/${var.cluster_name}" = "owned",
+      "karpenter.sh/discovery" = var.cluster_name
+    }
   )
 }
 
@@ -132,7 +148,7 @@ resource "aws_route_table" "private_subnet_rt" {
 
   tags = merge(
     var.tags,              
-    { Name = "${var.tags["Environment"]}-nat-gateway" }  
+    { Name = "${var.tags["Environment"]}-nat-gateway" }
   )
 }
 
