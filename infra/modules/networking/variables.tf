@@ -48,3 +48,4 @@ locals {
    prisub2 = aws_subnet.pri_sub2.id
   }
 }
+

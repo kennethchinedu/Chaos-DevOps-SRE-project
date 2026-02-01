@@ -19,3 +19,7 @@ variable "karpenter_version" {
   type = string
   default = "1.8.6"
 }
+
+variable "oidc" {
+  type = string
+}

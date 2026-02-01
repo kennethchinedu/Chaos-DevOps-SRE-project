@@ -5,8 +5,18 @@ data "aws_partition" "current" {}
 data "aws_caller_identity" "current" {}
 
 
+data "aws_eks_cluster" "cluster" {
+  name = var.cluster_name
+}
+
+
+data "aws_iam_openid_connect_provider" "eks" {
+  url = data.aws_eks_cluster.cluster.identity[0].oidc[0].issuer
+}
+
+
 #Karpenter role
-resource "aws_iam_role" "karpenter_role" {
+resource "aws_iam_role" "karpenter_node_role" {
   name = "karpenter-controller-role-${var.cluster_name}"
 
   # Terraform's "jsonencode" function converts a
@@ -34,28 +44,28 @@ resource "aws_iam_role" "karpenter_role" {
 
 resource "aws_iam_policy_attachment" "cni_attachement" {
   name       = "cni-attachment"
-  roles      = [aws_iam_role.karpenter_role.name]
+  roles      = [aws_iam_role.karpenter_node_role.name]
   policy_arn = "arn:${data.aws_partition.current.partition}:iam::aws:policy/AmazonEKS_CNI_Policy"
 }
 
 
 resource "aws_iam_policy_attachment" "workers_attachement" {
   name       = "workers-attachment"
-  roles      = [aws_iam_role.karpenter_role.name]
+  roles      = [aws_iam_role.karpenter_node_role.name]
   policy_arn = "arn:${data.aws_partition.current.partition}:iam::aws:policy/AmazonEKSWorkerNodePolicy"
 }
 
 
 resource "aws_iam_policy_attachment" "registery_attachement" {
   name       = "registery-attachment"
-  roles      = [aws_iam_role.karpenter_role.name]
+  roles      = [aws_iam_role.karpenter_node_role.name]
   policy_arn = "arn:${data.aws_partition.current.partition}:iam::aws:policy/AmazonEC2ContainerRegistryReadOnly"
 }
 
 
 resource "aws_iam_policy_attachment" "ssm_attachement" {
   name       = "ssm-attachment"
-  roles      = [aws_iam_role.karpenter_role.name]
+  roles      = [aws_iam_role.karpenter_node_role.name]
   policy_arn = "arn:${data.aws_partition.current.partition}:iam::aws:policy/AmazonSSMManagedInstanceCore"
 }
 
@@ -70,19 +80,20 @@ resource "aws_iam_role" "karpenter_controller_role" {
       {
         Effect = "Allow"
         Principal = {
-          Federated = "arn:${data.aws_partition.current.partition}:iam::${data.aws_caller_identity.current.account_id}:oidc-provider/${replace(var.cluster_endpoint, "https://", "")}"
+          Federated = data.aws_iam_openid_connect_provider.eks.arn
         }
         Action = "sts:AssumeRoleWithWebIdentity"
         Condition = {
           StringEquals = {
-            "${replace(var.cluster_endpoint, "https://", "")}:aud" = "sts.amazonaws.com"
-            "${replace(var.cluster_endpoint, "https://", "")}:sub" = "system:serviceaccount:karpenter:karpenter"
+            "${replace(data.aws_eks_cluster.cluster.identity[0].oidc[0].issuer, "https://", "")}:aud" = "sts.amazonaws.com"
+            "${replace(data.aws_eks_cluster.cluster.identity[0].oidc[0].issuer, "https://", "")}:sub" = "system:serviceaccount:karpenter:karpenter"
           }
         }
       }
     ]
   })
 }
+
 
 
 
@@ -137,7 +148,7 @@ resource "aws_iam_policy" "karpenter_controller_policy" {
       {
         Effect   = "Allow",
         Action   = "eks:DescribeCluster",
-        Resource = "arn:${data.aws_partition.current.partition}:iam::${data.aws_caller_identity.current.account_id}:role/KarpenterNodeRole-${var.cluster_name}",
+        Resource = "*",
         Sid      = "EKSClusterEndpointLookup"
       },
       {
@@ -184,7 +195,8 @@ resource "aws_iam_policy" "karpenter_controller_policy" {
         Action = [
           "iam:AddRoleToInstanceProfile",
           "iam:RemoveRoleFromInstanceProfile",
-          "iam:DeleteInstanceProfile"
+          "iam:DeleteInstanceProfile",
+          "iam:ListInstanceProfiles"  # <-- ADDED THIS LINE
         ],
         Condition = {
           StringEquals = {
