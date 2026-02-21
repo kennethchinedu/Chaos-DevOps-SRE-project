@@ -1,0 +1,26 @@
+# Prometheus Server PVC
+server:
+  persistentVolume:
+    enabled: true
+    size: 10Gi
+    storageClass: "standard" 
+    accessModes:
+      - ReadWriteOnce
+
+# Alertmanager PVC
+alertmanager:
+  persistentVolume:
+    enabled: true
+    size: 5Gi
+    storageClass: "standard"
+    accessModes:
+      - ReadWriteOnce
+
+# Grafana PVC
+grafana:
+  persistence:
+    enabled: true
+    size: 5Gi
+    storageClassName: "standard"
+    accessModes:
+      - ReadWriteOnce

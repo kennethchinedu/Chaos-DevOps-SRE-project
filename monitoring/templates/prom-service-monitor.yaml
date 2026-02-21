@@ -1,0 +1,18 @@
+#Adding our application servcies to be monitored on prometheius
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  name: api-services
+  namespace: monitoring
+  labels:
+    release: prometheus
+spec:
+  selector:
+    matchExpressions:
+      - {key: app, operator: In, values: ["email-app", "ads-app", "cart-app"]}
+  namespaceSelector:
+    matchNames:
+      - prod
+  endpoints:
+    - port: http-metrics
+      interval: 30s

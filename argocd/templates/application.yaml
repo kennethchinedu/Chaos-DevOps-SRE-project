@@ -4,9 +4,9 @@ metadata:
   name: boutique-microservices
   namespace: argocd
 spec:
-  project: microservices-project
+  project: boutique-project
   source:
-    repoURL: 'https://github.com/kennethchinedu/Chaos-DevOps-SRE-project'
+    repoURL: 'https://github.com/kennethchinedu/Chaos-DevOps-SRE-project' #This repo is public, no need for repo secrets
     targetRevision: main                              
     path: boutiqe-app
     # helm:
@@ -21,3 +21,10 @@ spec:
       selfHeal: true       
     syncOptions:
       - CreateNamespace=true  
+    retry:
+      limit: 5
+      backoff:
+        duration: 10s
+        factor: 2
+        maxDuration: 3m
+  revisionHistoryLimit: 10

@@ -1,18 +1,63 @@
 apiVersion: argoproj.io/v1alpha1
 kind: AppProject
 metadata:
-  name: Boutique-project
+  name: boutique-project
   namespace: argocd
 spec:
   description: Project for all boutique-microservices deployments
   sourceRepos:
-    - 'https://github.com/kennethchinedu/Chaos-DevOps-SRE-project'  
+    - 'https://github.com/kennethchinedu/Chaos-DevOps-SRE-project'  #This repo is public, no need for repo secrets
   destinations:
     - namespace: default
       server: https://kubernetes.default.svc
     - namespace: '!kube-system'
       server: '*'
+    - namespace: '!argocd'
+      server: https://kubernetes.default.svc
   clusterResourceWhitelist:
     - group: '*'
       kind: '*'
+  namespaceResourceWhitelist:    #  Allow only safe namespaced resources
+    - group: ""
+      kind: ConfigMap
+    - group: ""
+      kind: Secret
+    - group: ""
+      kind: Service
+    - group: ""
+      kind: ServiceAccount
+    - group: "apps"
+      kind: Deployment
+    - group: "apps"
+      kind: StatefulSet
+    - group: "apps"
+      kind: DaemonSet
+    - group: "networking.k8s.io"
+      kind: Ingress
+    - group: "autoscaling"
+      kind: HorizontalPodAutoscaler
+  syncWindows: #block production during business hours
+    - kind: deny
+      schedule: "0 9 * * 1-5"
+      duration: 8h
+      applications:
+        - "*"
+      manualSync: true
+#Protecting the app with levels and RBAC
+  roles:
+    - name: dev-role
+      description: Developers can sync apps in dev
+      policies:
+        - p, proj:boutique-project:dev-role, applications, get, boutique-project/*, allow
+        - p, proj:boutique-project:dev-role, applications, sync, boutique-project/*, allow
+      groups:
+        - dev-team
+
+    - name: read-only
+      description: Read-only access
+      policies:
+        - p, proj:boutique-project:read-only, applications, get, boutique-project/*, allow
+      groups:
+        - viewers
+
   namespaceResourceBlacklist: []
