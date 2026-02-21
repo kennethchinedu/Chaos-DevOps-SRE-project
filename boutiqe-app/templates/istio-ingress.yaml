@@ -1,1 +1,53 @@
+#Setting up external connection & service mesh using Istio
 
+apiVersion: networking.istio.io/v1beta1
+kind: Gateway
+metadata:
+  name: frontend-gateway
+  namespace: default
+spec:
+  selector:
+    istio: ingressgateway  # uses istio default ingress gateway
+  servers:
+    - port:
+        number: 80
+        name: http
+        protocol: HTTP
+      hosts:
+        - myapp.example.com
+
+--- 
+
+apiVersion: networking.istio.io/v1beta1
+kind: VirtualService
+metadata:
+  name: frontend-virtualservice
+  namespace: default
+spec:
+  hosts:
+    - "*"
+  gateways:
+    - frontend-gateway
+  http:
+    - match:
+        - uri:
+            prefix: /
+      route:
+        - destination:
+            host: frontend-service
+            port:
+              number: 8080
+
+
+--- 
+
+apiVersion: networking.istio.io/v1beta1
+kind: DestinationRule
+metadata:
+  name: fronted-destinationrule
+  namespace: default
+spec:
+  host: frontend-service
+  trafficPolicy:
+    loadBalancer:
+      simple: ROUND_ROBIN
