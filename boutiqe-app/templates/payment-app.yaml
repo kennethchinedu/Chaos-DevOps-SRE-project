@@ -46,7 +46,7 @@ spec:
 apiVersion: v1
 kind: Service
 metadata:
-  name: payment-app
+  name: payment-service
   namespace: default
 spec:
   selector:

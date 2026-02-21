@@ -51,17 +51,17 @@ spec:
       volumes:
         - name: localvolume
           emptyDir: {}
-      nodeSelector:
-        karpenter.sh/nodepool: server-app-nodepool
-      tolerations:
-        - key: "example.com/special-taint"
-          operator: "Exists"
-          effect: "NoSchedule"
+      # nodeSelector:
+      #   karpenter.sh/nodepool: server-app-nodepool
+      # tolerations:
+      #   - key: "example.com/special-taint"
+      #     operator: "Exists"
+      #     effect: "NoSchedule"
 ---
 apiVersion: v1
 kind: Service
 metadata:
-  name: frontend-app
+  name: frontend-service
   namespace: default
 spec:
   selector:

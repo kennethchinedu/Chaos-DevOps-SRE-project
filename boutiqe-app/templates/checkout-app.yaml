@@ -64,7 +64,7 @@ spec:
 apiVersion: v1
 kind: Service
 metadata:
-  name: checkout-app
+  name: checkout-service
   namespace: default
 spec:
   selector:

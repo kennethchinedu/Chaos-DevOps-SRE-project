@@ -44,7 +44,7 @@ spec:
 apiVersion: v1
 kind: Service
 metadata:
-  name: recommendation-app
+  name: recommendation-service
   namespace: default
 spec:
   selector:
