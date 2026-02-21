@@ -1,0 +1,59 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: payment-app
+  namespace: default
+  labels:
+    app: payment-app
+    dev: paymentservice
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: payment-app
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxSurge: 25%
+      maxUnavailable: 25%
+  template:
+    metadata:
+      labels:
+        app: payment-app
+    spec:
+      containers:
+        - name: paymentservice
+          image: anamskenneth/paymentservice:2025-07-24
+          imagePullPolicy: IfNotPresent
+          env:
+            - name: PORT
+              value: "5000"
+            - name: DISABLE_PROFILER
+              value: "1"
+            - name: DISABLE_DEBUGGER
+              value: "1"
+          ports:
+            - containerPort: 5000
+              name: payment-port
+          volumeMounts:
+            - name: localvolume
+              mountPath: /etc/localdev
+      volumes:
+        - name: localvolume
+          hostPath:
+            path: /etc/app
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: payment-app
+  namespace: default
+spec:
+  selector:
+    app: payment-app
+  type: ClusterIP
+  ports:
+    - port: 5000
+      targetPort: 5000
+      protocol: TCP
+      name: http

@@ -1,0 +1,20 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: argocd-notifications-cm
+  namespace: argocd
+data:
+  service.slack: |
+    token: $SLACK_TOKEN
+  templates.app-sync-failed: |
+    message: |
+      Application {{.app.metadata.name}} sync failed in namespace {{.app.metadata.namespace}}.
+      <{{.app.status.operationState.syncResult.repoURL}}|View in ArgoCD>
+  templates.app-health-degraded: |
+    message: |
+      Application {{.app.metadata.name}} is degraded in namespace {{.app.metadata.namespace}}.
+      <{{.app.status.operationState.syncResult.repoURL}}|View in ArgoCD>
+
+
+
+

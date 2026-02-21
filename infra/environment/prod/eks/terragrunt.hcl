@@ -19,12 +19,12 @@ dependency "vpc" {
 
     mock_outputs = {
     vpc_id       = "vpc-xxxxxx"
-    public_sub1  = "subnet-xxxxxx"
-    public_sub2  = "subnet-xxxxxx"
-    pri_sub1     = "subnet-xxxxxx"
-    pri_sub2     = "subnet-xxxxxx"
+    public_subnet_ids  = ["subnet-111111", "subnet-222222"]
+    public_subnet_ids  = ["subnet-aaaaaa", "subnet-bbbbbb"]
+  
   }
 }
+
 
 terraform {
   source = "../../../modules/eks"
@@ -37,15 +37,9 @@ terraform {
 
 inputs = {
   tags       = local.tags_map
-  vpc_id     = dependency.vpc.outputs.vpc_id
-  public_subnet_ids = [
-    dependency.vpc.outputs.public_sub1,
-    dependency.vpc.outputs.public_sub2
-  ] 
-  private_subnet_ids = [
-    dependency.vpc.outputs.pri_sub1,
-    dependency.vpc.outputs.pri_sub2
-  ]
+  vpc_id     =  dependency.vpc.outputs["vpc_id"]
+  public_subnet_ids = dependency.vpc.outputs["public_subnet_ids"]
+  private_subnet_ids = dependency.vpc.outputs["private_subnet_ids"]
 } 
  
 

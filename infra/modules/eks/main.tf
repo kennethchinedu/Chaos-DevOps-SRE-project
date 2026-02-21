@@ -1,93 +1,137 @@
-#Creating with EKS module from terraform registry
-#https://registry.terraform.io/modules/terraform-aws-modules/eks/aws/latest
+# =============================
+# EKS Cluster Module
+# =============================
 
-module "eks_al2023" {
+data "aws_caller_identity" "current" {}
+
+
+
+module "eks" {
   source  = "terraform-aws-modules/eks/aws"
   version = "~> 21.0"
 
   name               = "${var.tags["Environment"]}-eks2"
-  kubernetes_version = var.eks_version
+  kubernetes_version = "1.33"
 
-  # Enable accessing cluster from anywhere
-  endpoint_public_access = true
-  enable_cluster_creator_admin_permissions = true
-  authentication_mode = "API_AND_CONFIG_MAP"
-  
-
-  # EKS Addons
   addons = {
-    coredns = {}
+    coredns                = {}
     eks-pod-identity-agent = {
       before_compute = true
     }
-    kube-proxy = {}
-    vpc-cni = {
+    kube-proxy             = {}
+    vpc-cni                = {
       before_compute = true
     }
   }
 
-  vpc_id     = var.vpc_id
-  subnet_ids = var.private_subnet_ids
+  endpoint_public_access = true
+  enable_cluster_creator_admin_permissions = true
 
-  self_managed_node_groups = {
-    example = {
-      ami_type      = "AL2023_x86_64_STANDARD"
-      instance_type = "t3.medium"
+  vpc_id                   = var.vpc_id
+  subnet_ids               = var.private_subnet_ids
+  control_plane_subnet_ids = var.public_subnet_ids
 
-      min_size = 1
-      max_size = 4
-      # This value is ignored after the initial creation
-      # https://github.com/bryantbiggs/eks-desired-size-hack
-      desired_size = 3
+  # EKS Managed Node Group(s)
+  eks_managed_node_groups = {
+    "${var.tags["Environment"]}" = {
+      ami_type       = "AL2023_x86_64_STANDARD"
+      instance_types = ["t3.medium"]
 
-      # This is not required - demonstrates how to pass additional configuration to nodeadm
-      # Ref https://awslabs.github.io/amazon-eks-ami/nodeadm/doc/api/
-      cloudinit_pre_nodeadm = [
-        {
-          content_type = "application/node.eks.aws"
-          content      = <<-EOT
-            ---
-            apiVersion: node.eks.aws/v1alpha1
-            kind: NodeConfig
-            spec:
-              kubelet:
-                config:
-                  shutdownGracePeriod: 30s
-          EOT
+      min_size     = 2
+      max_size     = 5
+      desired_size = 2
+
+      labels = {
+        "karpenter.sh/controller" = "true"
+      }
+
+      taints = {
+        karpenter = {
+          key    = "karpenter.sh/controller"
+          value  = "true"
+          effect = "NO_SCHEDULE"
         }
-      ]
+      }
     }
   }
 
-
-    tags = merge(
-        var.tags,              
-        { Name = "${var.tags["Environment"]}-eks2" }  
-    )
-}
-
-
-resource "aws_security_group" "k8s-node-sg-default" {
-  name        = "${var.tags["Environment"]}-sg-group"
-  vpc_id      = var.vpc_id
-  description = "Managed by Terraform"
+  node_security_group_tags = {
+    "karpenter.sh/discovery" = "${var.tags["Environment"]}-eks2"
+  }
 
   tags = {
-    Environment                                 = "sandbox"
-    Team                                        = "DevOps"
-    Terraform                                   = "true"
-    "kubernetes.io/cluster/${module.eks_al2023.cluster_name}" = "owned"
-    "karpenter.sh/discovery" = module.eks_al2023.cluster_name
+    Environment = var.tags["Environment"]
+    Terraform   = "true"
   }
 }
 
-# Kubernetes node additional security group rules
 
-resource "aws_security_group_rule" "k8s-node-sg-allow-ssh-connections" {
-  type              = "ingress"
-  from_port         = 22
-  to_port           = 22
-  protocol          = "TCP"
-  cidr_blocks       = var.subnet_cidr
-  security_group_id = aws_security_group.k8s-node-sg-default.id
-}
+
+
+
+
+
+# # =============================
+# # Security Group for Nodes
+# # =============================
+# resource "aws_security_group" "k8s_node_sg" {
+#   name        = "${var.tags["Environment"]}-eks2-nodes-sg"
+#   description = "EKS worker nodes security group"
+#   vpc_id      = var.vpc_id
+
+#   tags = {
+#     Environment = var.tags["Environment"]
+#     Team        = "DevOps"
+#     Terraform   = "true"
+#     "kubernetes.io/cluster/${module.eks_al2023.cluster_name}" = "owned"
+#     "karpenter.sh/discovery" = module.eks_al2023.cluster_name
+#   }
+# }
+
+# # =============================
+# # Node Security Group Rules
+# # =============================
+
+# resource "aws_vpc_security_group_ingress_rule" "allow_tls_ipv4" {
+#   security_group_id = aws_security_group.k8s_node_sg.id
+#   cidr_ipv4         = var.vpc_cidr
+#   from_port         = 22
+#   ip_protocol       = "tcp"
+#   to_port           = 22
+# }
+
+# resource "aws_vpc_security_group_ingress_rule" "allow_all_traffic" {
+#   security_group_id = aws_security_group.k8s_node_sg.id
+#   cidr_ipv4         = var.vpc_cidr
+#   ip_protocol       = "-1"
+#   description       = "Allow all traffic to the node security group"
+#   # referenced_security_group_id = module.eks_al2023.cluster_security_group_id
+# }
+
+# resource "aws_vpc_security_group_ingress_rule" "allow_https_ipv4" {
+#   security_group_id = aws_security_group.k8s_node_sg.id
+#   cidr_ipv4         = var.vpc_cidr
+#   from_port         = 443
+#   ip_protocol       = "tcp"
+#   to_port           = 443
+#   # referenced_security_group_id = module.eks_al2023.cluster_security_group_id
+#   description       = "Allow HTTPS traffic to the node security group"
+# }
+
+
+# resource "aws_vpc_security_group_ingress_rule" "allow_cluster_to_nodes_https" {
+#   security_group_id            = aws_security_group.k8s_node_sg.id
+#   referenced_security_group_id = module.eks_al2023.cluster_security_group_id
+#   from_port                    = 443
+#   to_port                      = 443
+#   ip_protocol                  = "tcp"
+#   description                  = "Allow EKS control plane to communicate with nodes on HTTPS"
+# }
+
+
+
+# # resource "aws_eks_access_entry" "karpenter_nodes" {
+# #   cluster_name  = module.eks_al2023.cluster_name
+# #   principal_arn = "arn:aws:iam::471112894147:role/karpenter-controller-role-prod-eks2"
+# #   type          = "EC2_LINUX"
+# # }

@@ -45,13 +45,25 @@ spec:
         ports:
         - containerPort: 8080
           name: frontend-port
+        resources:
+          requests:
+            cpu: "100m"
+            memory: "128Mi"
+          limits:
+            cpu: "500m"
+            memory: "512Mi"
         volumeMounts:
         - name: localvolume
           mountPath: /etc/localdev
       volumes:
         - name: localvolume
-          hostPath:
-            path: /etc/app
+          emptyDir: {}
+      nodeSelector:
+        karpenter.sh/nodepool: server-app-nodepool
+      tolerations:
+      - key: "example.com/special-taint"
+        operator: "Exists"
+        effect: "NoSchedule"
       # restartPolicy: Always
 ---
 

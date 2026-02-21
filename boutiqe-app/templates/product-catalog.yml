@@ -1,0 +1,55 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: product-catalog-app
+  namespace: default
+  labels:
+    app: product-catalog-app
+    dev: productcatalog
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: product-catalog-app
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxSurge: 25%
+      maxUnavailable: 25%
+  template:
+    metadata:
+      labels:
+        app: product-catalog-app
+    spec:
+      containers:
+        - name: product-catalog
+          image: anamskenneth/productcatalogservice:2025-07-24
+          imagePullPolicy: IfNotPresent
+          env:
+            - name: PORT
+              value: "3550"
+          ports:
+            - containerPort: 3550
+              name: catalog-port
+          volumeMounts:
+            - name: localvolume
+              mountPath: /etc/localdev
+      volumes:
+        - name: localvolume
+          hostPath:
+            path: /etc/app
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: product-catalog-app
+  namespace: default
+spec:
+  selector:
+    app: product-catalog-app
+  type: ClusterIP
+  ports:
+    - port: 3550
+      targetPort: 3550
+      protocol: TCP
+      name: http

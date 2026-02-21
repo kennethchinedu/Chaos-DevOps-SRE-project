@@ -1,0 +1,57 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: cart-app
+  namespace: default
+  labels:
+    app: cart-app
+    dev: cartservice
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: cart-app
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxSurge: 25%
+      maxUnavailable: 25%
+  template:
+    metadata:
+      labels:
+        app: cart-app
+    spec:
+      containers:
+        - name: cartservice
+          image: anamskenneth/cartservice:2025-07-24
+          imagePullPolicy: IfNotPresent
+          env:
+            - name: PORT
+              value: "7070"
+            - name: REDIS_ADDR
+              value: "redis-cart:6379"
+          ports:
+            - containerPort: 7070
+              name: cart-port
+          volumeMounts:
+            - name: localvolume
+              mountPath: /etc/localdev
+      volumes:
+        - name: localvolume
+          hostPath:
+            path: /etc/app
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: cart-app
+  namespace: default
+spec:
+  selector:
+    app: cart-app
+  type: ClusterIP
+  ports:
+    - port: 7070
+      targetPort: 7070
+      protocol: TCP
+      name: http

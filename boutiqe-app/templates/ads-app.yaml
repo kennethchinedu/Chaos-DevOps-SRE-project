@@ -1,0 +1,55 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: ads-app
+  namespace: default
+  labels:
+    app: ads-app
+    dev: adservice
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: ads-app
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxSurge: 25%
+      maxUnavailable: 25%
+  template:
+    metadata:
+      labels:
+        app: ads-app
+    spec:
+      containers:
+        - name: ads-app
+          image: anamskenneth/adservice:2025-07-24
+          imagePullPolicy: IfNotPresent
+          env:
+            - name: PORT
+              value: "9555"
+          ports:
+            - containerPort: 9555
+              name: ads-port
+          volumeMounts:
+            - name: localvolume
+              mountPath: /etc/localdev
+      volumes:
+        - name: localvolume
+          hostPath:
+            path: /etc/app
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: ads-app
+  namespace: default
+spec:
+  selector:
+    app: ads-app
+  type: ClusterIP
+  ports:
+    - port: 9555
+      targetPort: 9555
+      protocol: TCP
+      name: http

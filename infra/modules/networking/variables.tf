@@ -35,17 +35,13 @@ variable "cluster_name" {
 
 
 
-locals {
-  public_subnet_ids = {
-   pubsub1 = aws_subnet.public_sub1.id,
-   pubsub2 = aws_subnet.public_sub2.id
-  }
+
+variable "private_subnet_cidr" {
+  type = list(string)
 }
 
-locals {
-  private_subnet_ids = {
-   prisub1 = aws_subnet.pri_sub1.id,
-   prisub2 = aws_subnet.pri_sub2.id
-  }
+
+variable "public_subnet_cidr" {
+  type = list(string)
 }
 

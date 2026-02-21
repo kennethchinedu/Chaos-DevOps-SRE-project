@@ -1,15 +1,21 @@
 apiVersion: karpenter.k8s.aws/v1
 kind: EC2NodeClass
 metadata:
-  name: server-app
+  name: server-app-nodeclass
+
+
 spec:
   amiFamily: AL2
+  role: "arn:aws:iam::471112894147:role/karpenter-node-role-prod-eks2"
 
   # Selects AMIs (latest Amazon Linux 2) for the instances
   amiSelectorTerms:
-    - tags: {}  
+    - name: "amazon-eks-node-*"
+      owners: ["602401143452"]
+  
 
-  # Kubelet configuration
+
+  # Kubelet configurationy
   kubelet:
     podsPerCore: 2
     maxPods: 20
@@ -40,20 +46,26 @@ spec:
     clusterDNS: ["10.0.1.100"]
 
   # Subnets to attach nodes to (replace with your actual subnets)
+  # IMPORTANT: The following tags MUST match the tags on your subnets in AWS.
+  # The error \"no subnets found\" indicates that these selectors are not matching any subnets.
+  # Please verify the tags on your subnets and update these selectors accordingly.
   subnetSelectorTerms:
     - tags:
         karpenter.sh/discovery: "prod-eks2"
-        environment: "prod"
+
 
   # Security groups to attach nodes to (replace with actual SG tags/names)
+  # IMPORTANT: The following tags MUST match the tags on your security groups in AWS.
+  # Please verify the tags on your security groups and update these selectors accordingly.
   securityGroupSelectorTerms:
     - tags:
-        karpenter.sh/discovery: "prod-eks2"
-        environment: "prod"
+        karpenter.sh/discovery: "prod-eks2" 
+        Environment: "prod"
+
 
   # Node tags
   tags:
-    project: NovaOps
+    project: app
     application: boutique-app
 
   # Metadata options for IMDS

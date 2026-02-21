@@ -1,0 +1,55 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: email-app
+  namespace: default
+  labels:
+    app: email-app
+    dev: emailapp
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: email-app
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxSurge: 25%
+      maxUnavailable: 25%
+  template:
+    metadata:
+      labels:
+        app: email-app
+    spec:
+      containers:
+        - name: emailapp
+          image: anamskenneth/emailservice:2025-07-24
+          imagePullPolicy: IfNotPresent
+          env:
+            - name: PORT
+              value: "8080"
+          ports:
+            - containerPort: 8080
+              name: email-port
+          volumeMounts:
+            - name: localvolume
+              mountPath: /etc/localdev
+      volumes:
+        - name: localvolume
+          hostPath:
+            path: /etc/app
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: email-app
+  namespace: default
+spec:
+  selector:
+    app: email-app
+  type: ClusterIP
+  ports:
+    - port: 8080
+      targetPort: 8080
+      protocol: TCP
+      name: http

@@ -1,0 +1,55 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: shipping-app
+  namespace: default
+  labels:
+    app: shipping-app
+    dev: shippingservice
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: shipping-app
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxSurge: 25%
+      maxUnavailable: 25%
+  template:
+    metadata:
+      labels:
+        app: shipping-app
+    spec:
+      containers:
+        - name: shipping-app
+          image: anamskenneth/shippingservice:2025-07-24
+          imagePullPolicy: IfNotPresent
+          env:
+            - name: PORT
+              value: "50051"
+          ports:
+            - containerPort: 50051
+              name: shipping-port
+          volumeMounts:
+            - name: localvolume
+              mountPath: /etc/localdev
+      volumes:
+        - name: localvolume
+          hostPath:
+            path: /etc/app
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: shipping-app
+  namespace: default
+spec:
+  selector:
+    app: shipping-app
+  type: ClusterIP
+  ports:
+    - port: 50051
+      targetPort: 50051
+      protocol: TCP
+      name: grpc

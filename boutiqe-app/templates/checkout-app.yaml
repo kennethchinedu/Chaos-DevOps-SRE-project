@@ -1,0 +1,77 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: checkout-app
+  namespace: default
+  labels:
+    app: checkout-app
+    dev: checkoutservice
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: checkout-app
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxSurge: 25%
+      maxUnavailable: 25%
+  template:
+    metadata:
+      labels:
+        app: checkout-app
+    spec:
+      containers:
+        - name: checkout
+          image: anamskenneth/checkoutservice:2025-07-24
+          imagePullPolicy: IfNotPresent
+          env:
+            - name: PORT
+              value: "5050"
+            - name: DISABLE_PROFILER
+              value: "1"
+            - name: DISABLE_DEBUGGER
+              value: "1"
+            - name: PRODUCT_CATALOG_SERVICE_ADDR
+              value: "product-catalog-service:3550"
+            - name: CURRENCY_SERVICE_ADDR
+              value: "currency-service:7000"
+            - name: CART_SERVICE_ADDR
+              value: "cart-service:7070"
+            - name: RECOMMENDATION_SERVICE_ADDR
+              value: "recommendation-service:8080"
+            - name: SHIPPING_SERVICE_ADDR
+              value: "shipping-service:50051"
+            - name: CHECKOUT_SERVICE_ADDR
+              value: "checkout-service:5050"
+            - name: AD_SERVICE_ADDR
+              value: "adservice:9555"
+            - name: PAYMENT_SERVICE_ADDR
+              value: "payment-service:5000"
+            - name: EMAIL_SERVICE_ADDR
+              value: "email-service:8080"
+          ports:
+            - containerPort: 5050
+              name: checkout-port
+          volumeMounts:
+            - name: localvolume
+              mountPath: /etc/localdev
+      volumes:
+        - name: localvolume
+          hostPath:
+            path: /etc/app
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: checkout-app
+  namespace: default
+spec:
+  selector:
+    app: checkout-app
+  type: ClusterIP
+  ports:
+    - port: 5050
+      targetPort: 5050
+      protocol: TCP
+      name: http
