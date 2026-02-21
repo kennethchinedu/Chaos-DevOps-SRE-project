@@ -1,15 +1,17 @@
 apiVersion: argoproj.io/v1alpha1
 kind: AppProject
 metadata:
-  name: microservices-project
+  name: Boutique-project
   namespace: argocd
 spec:
-  description: Project for all multi-microservices deployments
+  description: Project for all boutique-microservices deployments
   sourceRepos:
-    - 'https://github.com/your-org/your-repo.git'  # replace with your Git repo
+    - 'https://github.com/kennethchinedu/Chaos-DevOps-SRE-project'  
   destinations:
     - namespace: default
       server: https://kubernetes.default.svc
+    - namespace: '!kube-system'
+      server: '*'
   clusterResourceWhitelist:
     - group: '*'
       kind: '*'

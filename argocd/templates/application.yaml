@@ -1,23 +1,23 @@
 apiVersion: argoproj.io/v1alpha1
 kind: Application
 metadata:
-  name: multi-microservices
+  name: boutique-microservices
   namespace: argocd
 spec:
   project: microservices-project
   source:
-    repoURL: 'https://github.com/your-org/your-repo.git'  # your Git repo
-    targetRevision: main                               # branch or tag
-    path: multi-microservices-chart                    # path to Helm chart in repo
-    helm:
-      valueFiles:
-        - values.yaml                                  # optionally override values
+    repoURL: 'https://github.com/kennethchinedu/Chaos-DevOps-SRE-project'
+    targetRevision: main                              
+    path: boutiqe-app
+    # helm:
+    #   valueFiles:
+    #     - values.yaml                                  
   destination:
-    server: 'https://kubernetes.default.svc'          # target cluster
-    namespace: default                                # target namespace
+    server: 'https://kubernetes.default.svc'          
+    namespace: default                                
   syncPolicy:
     automated:
-      prune: true           # delete resources not in Git
-      selfHeal: true        # automatically fix drift
+      prune: true          
+      selfHeal: true       
     syncOptions:
-      - CreateNamespace=true  # auto-create namespace if missing
+      - CreateNamespace=true  

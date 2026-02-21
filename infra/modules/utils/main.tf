@@ -71,71 +71,71 @@ resource "helm_release" "argocd" {
 
 
 # #Istio
-resource "helm_release" "istio_base" {
-  name             = "istio-base"
-  repository       = "https://istio-release.storage.googleapis.com/charts"
-  chart            = "base"
-  namespace        = "istio-system"
-  create_namespace = true
-}
+# resource "helm_release" "istio_base" {
+#   name             = "istio-base"
+#   repository       = "https://istio-release.storage.googleapis.com/charts"
+#   chart            = "base"
+#   namespace        = "istio-system"
+#   create_namespace = true
+# }
 
-#istiod
-resource "helm_release" "istiod" {
-  name             = "istiod"
-  repository       = "https://istio-release.storage.googleapis.com/charts"
-  chart            = "istiod"
-  namespace        = "istio-system"
-  create_namespace = true
+# #istiod
+# resource "helm_release" "istiod" {
+#   name             = "istiod"
+#   repository       = "https://istio-release.storage.googleapis.com/charts"
+#   chart            = "istiod"
+#   namespace        = "istio-system"
+#   create_namespace = true
 
-  depends_on = [
-    helm_release.istio_base
-  ]
-}
-#istio gateway
-resource "helm_release" "istio_gateway" {
-  name       = "istio-ingressgateway"
-  repository = "https://istio-release.storage.googleapis.com/charts"
-  chart      = "gateway"
-  namespace  = "istio-system"
+#   depends_on = [
+#     helm_release.istio_base
+#   ]
+# }
+# #istio gateway
+# resource "helm_release" "istio_gateway" {
+#   name       = "istio-ingressgateway"
+#   repository = "https://istio-release.storage.googleapis.com/charts"
+#   chart      = "gateway"
+#   namespace  = "istio-system"
 
-  # depends_on = [
-  #   helm_release.istiod
-  # ]
+#   # depends_on = [
+#   #   helm_release.istiod
+#   # ]
 
-}
+# }
 
 #For local testing we will be installing metallb
-resource "helm_release" "metallb" {
-  name       = "metallb"
-  repository = "https://metallb.github.io/metallb"
-  chart      = "metallb"
-  namespace  = "metallb-system"
+# resource "helm_release" "metallb" {
+#   name       = "metallb"
+#   repository = "https://metallb.github.io/metallb"
+#   chart      = "metallb"
+#   namespace  = "metallb-system"
 
-  create_namespace = true
-}
+#   create_namespace = true
+# }
 
 
 
-################# MONITORING STACK INSTALLATION #################
-#To keep things simple we will be installing manifest for out monitoring stack directly
+# ################# MONITORING STACK INSTALLATION #################
+# #To keep things simple we will be installing manifest for out monitoring stack directly
 
-resource "null_resource" "istio_grafana" {
-  provisioner "local-exec" {
-    command = "kubectl apply -f https://raw.githubusercontent.com/istio/istio/release-1.28/samples/addons/grafana.yaml"
-  }
-}
+# resource "null_resource" "istio_grafana" {
+#   provisioner "local-exec" {
+#     command = "kubectl apply -f https://raw.githubusercontent.com/istio/istio/release-1.28/samples/addons/grafana.yaml"
+#   }
+# }
 
-resource "null_resource" "istio_prometheus" {
-  provisioner "local-exec" {
-    command = "kubectl apply -f https://raw.githubusercontent.com/istio/istio/release-1.28/samples/addons/prometheus.yaml"
-  }
-}
+# resource "null_resource" "istio_prometheus" {
+#   provisioner "local-exec" {
+#     command = "kubectl apply -f https://raw.githubusercontent.com/istio/istio/release-1.28/samples/addons/prometheus.yaml"
+#   }
+# }
 
-resource "null_resource" "istio_kiali" {
-  provisioner "local-exec" {
-    command = "kubectl apply -f https://raw.githubusercontent.com/istio/istio/release-1.28/samples/addons/kiali.yaml"
-  }
-}
+# resource "null_resource" "istio_kiali" {
+#   provisioner "local-exec" {
+#     command = "kubectl apply -f https://raw.githubusercontent.com/istio/istio/release-1.28/samples/addons/kiali.yaml"
+#   }
+# }
 
 
 # # Rancher
