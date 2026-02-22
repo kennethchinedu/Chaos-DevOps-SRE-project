@@ -1,0 +1,42 @@
+# Enable persistent volumes for Prometheus, Alertmanager, and Grafana
+prometheus:
+  prometheusSpec:
+    storageSpec:
+      volumeClaimTemplate:
+        spec:
+          storageClassName: standard
+          accessModes: ["ReadWriteOnce"]
+          resources:
+            requests:
+              storage: 10Gi
+
+alertmanager:
+  alertmanagerSpec:
+    storage:
+      volumeClaimTemplate:
+        spec:
+          storageClassName: standard
+          accessModes: ["ReadWriteOnce"]
+          resources:
+            requests:
+              storage: 5Gi
+
+grafana:
+  persistence:
+    enabled: true
+    storageClassName: standard
+    accessModes: ["ReadWriteOnce"]
+    size: 5Gi
+
+# Enable ServiceMonitor & PodMonitor support
+prometheusOperator:
+  createCustomResource: true
+  serviceMonitorSelectorNilUsesHelmValues: false
+
+# Enable Node Exporter
+prometheus-node-exporter:
+  enabled: true
+
+# Enable kube-state-metrics
+kube-state-metrics:
+  enabled: true

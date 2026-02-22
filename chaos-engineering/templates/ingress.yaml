@@ -2,9 +2,9 @@
 apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
-  name: {{ include "monitoring.fullname" . }}
+  name: {{ include "chaos-engineering.fullname" . }}
   labels:
-    {{- include "monitoring.labels" . | nindent 4 }}
+    {{- include "chaos-engineering.labels" . | nindent 4 }}
   {{- with .Values.ingress.annotations }}
   annotations:
     {{- toYaml . | nindent 4 }}
@@ -35,7 +35,7 @@ spec:
             {{- end }}
             backend:
               service:
-                name: {{ include "monitoring.fullname" $ }}
+                name: {{ include "chaos-engineering.fullname" $ }}
                 port:
                   number: {{ $.Values.service.port }}
           {{- end }}

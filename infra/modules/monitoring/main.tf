@@ -1,34 +1,51 @@
-resource "helm_release" "prometheus" {
+resource "helm_release" "prometheus_stack" {
   name             = "prometheus"
-  repository       = "https://prometheus-community.github.io/helm-charts"
-  chart            = "prometheus"
   namespace        = "monitoring"
   create_namespace = true
+  repository       = "https://prometheus-community.github.io/helm-charts"
+  chart            = "kube-prometheus-stack"
+  version          = "82.2.0" # stable release
 
-  
-  version = "25.21.0"
-  atomic          = true
-  values = [<<EOF
-
-server:
-  replicaCount: 1
-
-
-alertmanager:
-  enabled: true
-
-EOF
+  # Optional: override default values
+  values = [
+    file("${path.module}/prometheus-values.yaml")
   ]
+
+  atomic          = true
+  cleanup_on_fail = true
+  timeout         = 900
 }
 
-resource "helm_release" "blackbox_exporter" {
-  name             = "blackbox-exporter"
-  repository       = "https://prometheus-community.github.io/helm-charts"
-  chart            = "prometheus-blackbox-exporter"
+
+
+resource "helm_release" "kiali" {
+  name             = "kiali"
+  repository       = "https://kiali.org/helm-charts"
+  chart            = "kiali-server"
   namespace        = "monitoring"
   create_namespace = false
-  version          = "0.25.0"   
+  version          = "1.89.0"  
 
+  values = [
+    <<EOF
+auth:
+  strategy: anonymous   
+
+external_services:
+  prometheus:
+    url: "http://prometheus-kube-prometheus-prometheus.monitoring.svc.cluster.local:80"
+  grafana:
+    enabled: true
+    url: "http://prometheus-grafana.monitoring.svc.cluster.local:80"
+
+deployment:
+  accessible_namespaces:
+    - "**"
+
+server:
+  web_root: ""
+EOF
+  ]
 
   atomic          = true
   cleanup_on_fail = true

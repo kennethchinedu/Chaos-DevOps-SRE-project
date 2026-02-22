@@ -1,49 +1,3 @@
-# #  Ingress-NGINX Controller for the utils
-# resource "helm_release" "nginx_ingress_utils" {
-#   name             = "ingress-nginx-utils"
-#   repository       = "https://kubernetes.github.io/ingress-nginx"
-#   chart            = "ingress-nginx"
-#   namespace        = "inginx-system-utils"
-  
-#   create_namespace = true
-
-#   set = [ {
-#     name  = "controller.service.type"
-#     value = "LoadBalancer"
-#   },
-#   {
-#     name  = "controller.ingressClass"
-#     value = "nginx-utils"
-#   },
-#   {
-#     name  = "controller.ingressClassResource.name"
-#     value = "nginx-utils"
-#   }  ]
-# }
-
-#This loadbalancer is for the application
-# resource "helm_release" "nginx_ingress_app" {
-#   name             = "ingress-nginx-app"
-#   repository       = "https://kubernetes.github.io/ingress-nginx"
-#   chart            = "ingress-nginx"
-#   namespace        = "inginx-system-app"
-  
-#   create_namespace = true
-#   atomic           = true
-#   replace          = true
-
-#   set = [ {
-#     name  = "controller.service.type"
-#     value = "LoadBalancer"
-#   }, {
-#     name  = "controller.ingressClass"
-#     value = "nginx-app"
-#   }, {
-#     name  = "controller.ingressClassResource.name"
-#     value = "nginx-app"
-#   } ]
-# }
-
 #  Cert-Manager
 # resource "helm_release" "cert_manager" {
 #   name             = "cert-manager"
@@ -60,6 +14,8 @@
   
 # }
 
+
+
 #Argocd
 resource "helm_release" "argocd" {
   name             = "argocd"
@@ -70,53 +26,72 @@ resource "helm_release" "argocd" {
 }
 
 
+#Istio
+resource "helm_release" "istio_base" {
+  name             = "istio-base"
+  repository       = "https://istio-release.storage.googleapis.com/charts"
+  chart            = "base"
+  namespace        = "istio-system"
+  create_namespace = true
+}
+    
+#istiod
+resource "helm_release" "istiod" {
+  name             = "istiod"
+  repository       = "https://istio-release.storage.googleapis.com/charts"
+  chart            = "istiod"
+  namespace        = "istio-system"
+  create_namespace = true
+
+  depends_on = [
+    helm_release.istio_base
+  ]
+}
+
+
+#istiod
+resource "helm_release" "istiod_cni" {
+  name             = "istio-cni"
+  repository       = "https://istio-release.storage.googleapis.com/charts"
+  chart            = "cni"
+  namespace        = "istio-system"
+  create_namespace = true
+
+  depends_on = [
+    helm_release.istio_base
+  ]
+}
+
+#istio gateway
+resource "helm_release" "istio_gateway" {
+  name       = "istio-ingressgateway"
+  repository = "https://istio-release.storage.googleapis.com/charts"
+  chart      = "gateway"
+  namespace  = "istio-system"
+  create_namespace = true
+
+  depends_on = [
+    helm_release.istiod
+  ]
+
+}
 
 
 
-# #Istio
-# resource "helm_release" "istio_base" {
-#   name             = "istio-base"
-#   repository       = "https://istio-release.storage.googleapis.com/charts"
-#   chart            = "base"
-#   namespace        = "istio-system"
-#   create_namespace = true
-# }
+###########################################################################
+#.        CHAOS MESH
+#####################################
 
-# #istiod
-# resource "helm_release" "istiod" {
-#   name             = "istiod"
-#   repository       = "https://istio-release.storage.googleapis.com/charts"
-#   chart            = "istiod"
-#   namespace        = "istio-system"
-#   create_namespace = true
 
-#   depends_on = [
-#     helm_release.istio_base
-#   ]
-# }
-# #istio gateway
-# resource "helm_release" "istio_gateway" {
-#   name       = "istio-ingressgateway"
-#   repository = "https://istio-release.storage.googleapis.com/charts"
-#   chart      = "gateway"
-#   namespace  = "istio-system"
+resource "helm_release" "chaos_mesh" {
+  name = "chaos-mesh"
+  repository = "https://charts.chaos-mesh.org"
+  chart = "chaos-mesh"
+  namespace = "chaos-mesh"
+  create_namespace = true
+  version = "2.8.1"
 
-#   # depends_on = [
-#   #   helm_release.istiod
-#   # ]
-
-# }
-
-#For local testing we will be installing metallb
-# resource "helm_release" "metallb" {
-#   name       = "metallb"
-#   repository = "https://metallb.github.io/metallb"
-#   chart      = "metallb"
-#   namespace  = "metallb-system"
-
-#   create_namespace = true
-# }
-
+}
 
 
 # ################# MONITORING STACK INSTALLATION #################

@@ -63,6 +63,8 @@ kind: Service
 metadata:
   name: frontend-service
   namespace: default
+  labels:
+    app: frontend-app
 spec:
   selector:
     app: frontend-app
