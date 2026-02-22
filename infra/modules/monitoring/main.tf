@@ -18,35 +18,35 @@ resource "helm_release" "prometheus_stack" {
 
 
 
-resource "helm_release" "kiali" {
-  name             = "kiali"
-  repository       = "https://kiali.org/helm-charts"
-  chart            = "kiali-server"
-  namespace        = "monitoring"
-  create_namespace = false
-  version          = "1.89.0"  
+# resource "helm_release" "kiali" {
+#   name             = "kiali"
+#   repository       = "https://kiali.org/helm-charts"
+#   chart            = "kiali-server"
+#   namespace        = "monitoring"
+#   create_namespace = false
+#   version          = "1.89.0"  
 
-  values = [
-    <<EOF
-auth:
-  strategy: anonymous   
+#   values = [
+#     <<EOF
+# auth:
+#   strategy: anonymous   
 
-external_services:
-  prometheus:
-    url: "http://prometheus-kube-prometheus-prometheus.monitoring.svc.cluster.local:80"
-  grafana:
-    enabled: true
-    url: "http://prometheus-grafana.monitoring.svc.cluster.local:80"
+# external_services:
+#   prometheus:
+#     url: "http://prometheus-kube-prometheus-prometheus.monitoring.svc.cluster.local:80"
+#   grafana:
+#     enabled: true
+#     url: "http://prometheus-grafana.monitoring.svc.cluster.local:80"
 
-deployment:
-  accessible_namespaces:
-    - "**"
+# deployment:
+#   accessible_namespaces:
+#     - "**"
 
-server:
-  web_root: ""
-EOF
-  ]
+# server:
+#   web_root: ""
+# EOF
+#   ]
 
-  atomic          = true
-  cleanup_on_fail = true
-}
+#   atomic          = true
+#   cleanup_on_fail = true
+# }

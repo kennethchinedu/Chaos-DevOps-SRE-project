@@ -26,55 +26,55 @@ resource "helm_release" "argocd" {
 }
 
 
-#Istio
-resource "helm_release" "istio_base" {
-  name             = "istio-base"
-  repository       = "https://istio-release.storage.googleapis.com/charts"
-  chart            = "base"
-  namespace        = "istio-system"
-  create_namespace = true
-}
+# #Istio
+# resource "helm_release" "istio_base" {
+#   name             = "istio-base"
+#   repository       = "https://istio-release.storage.googleapis.com/charts"
+#   chart            = "base"
+#   namespace        = "istio-system"
+#   create_namespace = true
+# }
     
-#istiod
-resource "helm_release" "istiod" {
-  name             = "istiod"
-  repository       = "https://istio-release.storage.googleapis.com/charts"
-  chart            = "istiod"
-  namespace        = "istio-system"
-  create_namespace = true
+# #istiod
+# resource "helm_release" "istiod" {
+#   name             = "istiod"
+#   repository       = "https://istio-release.storage.googleapis.com/charts"
+#   chart            = "istiod"
+#   namespace        = "istio-system"
+#   create_namespace = true
 
-  depends_on = [
-    helm_release.istio_base
-  ]
-}
+#   depends_on = [
+#     helm_release.istio_base
+#   ]
+# }
 
 
-#istiod
-resource "helm_release" "istiod_cni" {
-  name             = "istio-cni"
-  repository       = "https://istio-release.storage.googleapis.com/charts"
-  chart            = "cni"
-  namespace        = "istio-system"
-  create_namespace = true
+# #istiod
+# resource "helm_release" "istiod_cni" {
+#   name             = "istio-cni"
+#   repository       = "https://istio-release.storage.googleapis.com/charts"
+#   chart            = "cni"
+#   namespace        = "istio-system"
+#   create_namespace = true
 
-  depends_on = [
-    helm_release.istio_base
-  ]
-}
+#   depends_on = [
+#     helm_release.istio_base
+#   ]
+# }
 
-#istio gateway
-resource "helm_release" "istio_gateway" {
-  name       = "istio-ingressgateway"
-  repository = "https://istio-release.storage.googleapis.com/charts"
-  chart      = "gateway"
-  namespace  = "istio-system"
-  create_namespace = true
+# #istio gateway
+# resource "helm_release" "istio_gateway" {
+#   name       = "istio-ingressgateway"
+#   repository = "https://istio-release.storage.googleapis.com/charts"
+#   chart      = "gateway"
+#   namespace  = "istio-system"
+#   create_namespace = true
 
-  depends_on = [
-    helm_release.istiod
-  ]
+#   depends_on = [
+#     helm_release.istiod
+#   ]
 
-}
+# }
 
 
 

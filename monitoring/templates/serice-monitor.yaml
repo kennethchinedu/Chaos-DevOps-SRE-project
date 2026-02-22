@@ -1,27 +1,6 @@
 apiVersion: monitoring.coreos.com/v1
 kind: ServiceMonitor
 metadata:
-  name: my-app-servicemonitor
-  namespace: monitoring
-  labels:
-    app: my-app
-spec:
-  selector:
-    matchLabels:
-      app: frontend-app
-  endpoints:
-  - port: http
-    interval: 30s
-    path: /metrics
-  namespaceSelector:
-    matchNames:
-    - default
-
----
-
-apiVersion: monitoring.coreos.com/v1
-kind: ServiceMonitor
-metadata:
   name: blackbox-checkout-payment
   namespace: monitoring
   labels:

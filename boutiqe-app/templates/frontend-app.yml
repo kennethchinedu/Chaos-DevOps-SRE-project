@@ -6,6 +6,10 @@ metadata:
   labels:
     app: frontend-app
     dev: frontend
+  annotations:
+    prometheus.io/scrape: "true"
+    prometheus.io/path: "/health"
+    prometheus.io/port: "8080"
 spec:
   replicas: 1
   selector:

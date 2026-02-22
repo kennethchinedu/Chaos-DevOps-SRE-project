@@ -36,9 +36,9 @@ Allowed failure time:
 
 ## Stack
 
-Kubernetes • ArgoCD • Istio • Helm  
+Kubernetes • Karpenter • ArgoCD • Istio • Helm  • EKS
 Prometheus • Grafana • Alertmanager  
-Chaos Mesh • Docker •  NewRelic • Linux *
+Chaos Mesh • Docker • Terragrunt •  Loki • Linux *
 
 ---
 
@@ -50,12 +50,14 @@ Chaos Mesh • Docker •  NewRelic • Linux *
 
 ## Method
 
-1. Establish baseline metrics (latency, errors, saturation)
-2. Define blast radius and safety controls
-3. Inject controlled failures
-4. Observe system behavior
-5. Tune retries, autoscaling, and limits
-6. Re-test and compare results
+1. I deployed all infra as code, multi enironment using terragrunt
+2. Templated all deployments using Helm, for predictability
+3. I establishd baseline metrics (latency, errors, saturation)
+4. I defined blast radius and safety controls
+5. I Injected controlled failures
+6. I observed system behavior
+7. I tuned retries, autoscaling, and limits
+8. I re-tested and compare results
 
 ---
 
