@@ -2,6 +2,25 @@
 
 A production chaos engineering lab focused on **reliability, observability, and controlled failure** in Kubernetes platforms.
 
+## Formal SLO Statement
+
+### Availability SLO
+
+The Checkout and Payment APIs must maintain 99.9% availability over a rolling 30-day window, measured via successful HTTP responses from black-box monitoring.
+
+### Latency SLO
+95% of checkout requests must complete in under 500ms over a rolling 30-day window, measured using request duration histograms.
+
+📊 Error Budget Calculation
+
+30 days = ~43,200 minutes
+
+0.1% failure allowed (100 - 99.9)
+
+Allowed failure time:
+
+43,200 × 0.001 = 43.2 minutes in a month.
+
 ---
 
 ## Focus

@@ -13,7 +13,7 @@ resource "helm_release" "prometheus_stack" {
 
   atomic          = true
   cleanup_on_fail = true
-  timeout         = 900
+  timeout         = 1100
 }
 
 

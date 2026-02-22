@@ -91,6 +91,9 @@ resource "helm_release" "chaos_mesh" {
   create_namespace = true
   version = "2.8.1"
 
+  atomic = true
+  timeout = 300
+
 }
 
 
