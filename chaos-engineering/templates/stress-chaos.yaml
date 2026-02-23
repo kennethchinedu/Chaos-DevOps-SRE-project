@@ -1,21 +1,21 @@
-apiVersion: chaos-mesh.org/v1alpha1
-kind: StressChaos
-metadata:
-  name: stress-frontend-cpu
-  namespace: chaos-mesh
-  labels:
-    app.kubernetes.io/name: chaos-testing
-  annotations:
-    chaos-mesh.org/description: "Simulate CPU stress on one frontend pod"
-spec:
-  mode: one
-  selector:
-    namespaces:
-      - default
-    labelSelectors:
-      "app": "frontend-app"
-  stressors:
-    memory: 
-        workers: 4
-        size: '250MB'
-  duration: "1m"
+# apiVersion: chaos-mesh.org/v1alpha1
+# kind: StressChaos
+# metadata:
+#   name: stress-frontend-cpu
+#   namespace: chaos-mesh
+#   labels:
+#     app.kubernetes.io/name: chaos-testing
+#   annotations:
+#     chaos-mesh.org/description: "Simulate CPU stress on one frontend pod"
+# spec:
+#   mode: one
+#   selector:
+#     namespaces:
+#       - default
+#     labelSelectors:
+#       "app": "frontend-app"
+#   stressors:
+#     memory: 
+#         workers: 4
+#         size: '250MB'
+#   duration: "1m"

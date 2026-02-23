@@ -1,0 +1,40 @@
+#We will manage how service is routed and received throughout infra.
+#all services will received 2 Retry twice,Each try max 300ms & Total timeout 1s
+apiVersion: networking.istio.io/v1beta1
+kind: VirtualService
+metadata:
+  name: cart-policy
+  namespace: default
+spec:
+  hosts:
+    - cart-service
+  http:
+    - route:
+        - destination:
+            host: cart-service
+      retries:
+        attempts: 2
+        perTryTimeout: 300ms
+      timeout: 1s 
+
+---
+
+apiVersion: networking.istio.io/v1beta1
+kind: DestinationRule
+metadata:
+  name: cart-circuit-breaker
+  namespace: default
+spec:
+  host: cart-service
+  trafficPolicy:
+    connectionPool:
+      tcp:
+        maxConnections: 50
+      http:
+        http1MaxPendingRequests: 20
+        maxRequestsPerConnection: 10
+    outlierDetection:
+      consecutive5xxErrors: 3
+      interval: 5s
+      baseEjectionTime: 30s
+      maxEjectionPercent: 100
