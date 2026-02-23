@@ -1,31 +1,38 @@
-#We will manage how service is routed and received throughout infra.
-#all services will received 2 Retry twice,Each try max 300ms & Total timeout 1s
+# Namespace-wide VirtualService for internal service-to-service traffic
+# We will manage how service is routed and received throughout infra.
+# all services will receive: 2 Retry twice,Each try max 300ms & Total timeout 1s
+# Applies to all services inside the namespace.
+# Handles retries and timeouts for east-west traffic.
+# ============================================
 apiVersion: networking.istio.io/v1beta1
 kind: VirtualService
 metadata:
-  name: cart-policy
+  name: namespace-wide-internal-routing
   namespace: default
 spec:
   hosts:
-    - cart-service
+    - "*"                     # All services in the namespace
   http:
     - route:
         - destination:
-            host: cart-service
+            host: "*"         # Matches all destinations
       retries:
-        attempts: 2
-        perTryTimeout: 300ms
-      timeout: 1s 
+        attempts: 1            # Retry once for internal calls
+        perTryTimeout: 200ms   # Each retry max 200ms
+      timeout: 500ms            # Total request timeout
 
 ---
+
+# Handles circuit breaking & connection pools
+# Protects all services from cascading failures
 
 apiVersion: networking.istio.io/v1beta1
 kind: DestinationRule
 metadata:
-  name: cart-circuit-breaker
+  name: namespace-wide-circuit-breaker
   namespace: default
 spec:
-  host: cart-service
+  host: "*"                    # Applies to all services in the namespace
   trafficPolicy:
     connectionPool:
       tcp:
@@ -34,7 +41,7 @@ spec:
         http1MaxPendingRequests: 20
         maxRequestsPerConnection: 10
     outlierDetection:
-      consecutive5xxErrors: 3
-      interval: 5s
-      baseEjectionTime: 30s
-      maxEjectionPercent: 100
+      consecutive5xxErrors: 3      # Eject if 3 consecutive 5xx errors
+      interval: 5s                  # Check every 5 seconds
+      baseEjectionTime: 30s         # Keep ejected instance out for 30 seconds
+      maxEjectionPercent: 100       # Max % of hosts that can be ejected   

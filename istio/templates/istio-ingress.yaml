@@ -18,10 +18,11 @@ spec:
 
 --- 
 
+
 apiVersion: networking.istio.io/v1beta1
 kind: VirtualService
 metadata:
-  name: frontend-virtualservice
+  name: frontend-gateway-routing
   namespace: default
 spec:
   hosts:
@@ -31,13 +32,14 @@ spec:
   http:
     - match:
         - uri:
-            prefix: /
+            prefix: "/"
       route:
         - destination:
-            host: frontend-service
-            port:
-              number: 8080
-
+            host: frontend-app
+      retries:
+        attempts: 2
+        perTryTimeout: 300ms
+      timeout: 1s
 
 --- 
 
