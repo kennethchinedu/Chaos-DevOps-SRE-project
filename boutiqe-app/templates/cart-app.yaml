@@ -36,18 +36,22 @@ spec:
           volumeMounts:
             - name: localvolume
               mountPath: /etc/localdev
-      livenessProbe:
-        httpGet:
-          path: /health
-          port: 7070
-        initialDelaySeconds: 10
-        periodSeconds: 10
-      readinessProbe:
-        httpGet:
-          path: /health
-          port: 7070
-      initialDelaySeconds: 5
-      periodSeconds: 5
+
+          # ✅ Probes must be inside container
+          livenessProbe:
+            httpGet:
+              path: /health
+              port: 7070
+            initialDelaySeconds: 10
+            periodSeconds: 10
+
+          readinessProbe:
+            httpGet:
+              path: /health
+              port: 7070
+            initialDelaySeconds: 5
+            periodSeconds: 5
+
       volumes:
         - name: localvolume
           hostPath:
