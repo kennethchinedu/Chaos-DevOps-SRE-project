@@ -28,3 +28,36 @@ spec:
         factor: 2
         maxDuration: 3m
   revisionHistoryLimit: 10
+
+---
+
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: boutique-istio
+  namespace: argocd
+spec:
+  project: boutique-project
+  source:
+    repoURL: 'https://github.com/kennethchinedu/Chaos-DevOps-SRE-project' #This repo is public, no need for repo secrets
+    targetRevision: main                              
+    path: istio
+    # helm:
+    #   valueFiles:
+    #     - values.yaml                                  
+  destination:
+    server: 'https://kubernetes.default.svc'          
+    namespace: default                                
+  syncPolicy:
+    automated:
+      prune: true          
+      selfHeal: true       
+    syncOptions:
+      - CreateNamespace=true  
+    retry:
+      limit: 5
+      backoff:
+        duration: 10s
+        factor: 2
+        maxDuration: 3m
+  revisionHistoryLimit: 10

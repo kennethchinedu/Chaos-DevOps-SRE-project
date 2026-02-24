@@ -36,8 +36,6 @@ spec:
           volumeMounts:
             - name: localvolume
               mountPath: /etc/localdev
-
-          # ✅ Probes must be inside container
           livenessProbe:
             httpGet:
               path: /health
@@ -62,6 +60,8 @@ kind: Service
 metadata:
   name: cart-service
   namespace: default
+label: 
+    app: cart-service
 spec:
   selector:
     app: cart-app

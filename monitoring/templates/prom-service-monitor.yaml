@@ -1,50 +1,22 @@
 apiVersion: monitoring.coreos.com/v1
 kind: ServiceMonitor
 metadata:
-  name: my-app-servicemonitor
-  namespace: monitoring
+  name: cart-service-servicemonitor
+  namespace: monitoring                  # Prometheus stack lives here
   labels:
-    app: my-app
-spec:
-  selector:
-    matchLabels:
-      app: frontend-app
-  endpoints:
-  - port: http
-    interval: 30s
-    path: /metrics
-  namespaceSelector:
-    matchNames:
-    - default
-
----
-
-apiVersion: monitoring.coreos.com/v1
-kind: ServiceMonitor
-metadata:
-  name: blackbox-checkout-payment
-  namespace: monitoring
-  labels:
+    app: cart-service                    # Used by Prometheus to discover
     release: prometheus-operator
 spec:
   selector:
     matchLabels:
-      app: blackbox-exporter
+      app: cart-service                  # Must match your Deployment / Service label
   namespaceSelector:
     matchNames:
-      - monitoring
+      - default                          # Namespace where cart-service runs
   endpoints:
-    - port: http
-      path: /probe
-      interval: 15s
-      params:
-        module: [http_2xx]
-  targetLabels:
-    - instance
-  relabelings:
-    - sourceLabels: [__address__]
-      targetLabel: __param_target
-    - sourceLabels: [__param_target]
-      targetLabel: instance
-    - targetLabel: __address__
-      replacement: blackbox-exporter.monitoring.svc.cluster.local:9115
+    - port: cart-port                     # Must match the Service port name
+      path: /metrics                      # Metrics path exposed by your app
+      interval: 30s                        # How often Prometheus scrapes
+      scrapeTimeout: 10s                   # Optional, max wait per scrape
+      scheme: http                         # http/https depending on your service
+---

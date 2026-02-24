@@ -3,7 +3,7 @@
 # all services will receive: 2 Retry twice,Each try max 300ms & Total timeout 1s
 # Applies to all services inside the namespace.
 # Handles retries and timeouts for east-west traffic.
-# ============================================
+
 apiVersion: networking.istio.io/v1beta1
 kind: VirtualService
 metadata:
@@ -32,7 +32,7 @@ metadata:
   name: namespace-wide-circuit-breaker
   namespace: default
 spec:
-  host: "*"                    # Applies to all services in the namespace
+  host: "*"                   
   trafficPolicy:
     connectionPool:
       tcp:
