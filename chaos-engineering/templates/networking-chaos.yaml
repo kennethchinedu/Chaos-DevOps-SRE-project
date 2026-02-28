@@ -23,32 +23,32 @@ spec:
 
 # # ---
 
-# apiVersion: chaos-mesh.org/v1alpha1
-# kind: CronChaos
-# metadata:
-#   name: partition-scheduled
-#   namespace: chaos-mesh
-#   labels:
-#     app.kubernetes.io/name: chaos-testing
-#   annotations:
-#     chaos-mesh.org/description: "Scheduled network partition between app1 and app2 every 5 minutes"
-# spec:
-#   schedule: "*/5 * * * *"   # Every 5 minutes
-#   type: NetworkChaos
-#   networkChaos:
-#     action: partition
-#     mode: all
-#     selector:
-#       namespaces:
-#         - default
-#       labelSelectors:
-#         'app': 'frontend-app'
-#     direction: both
-#     target:
-#       mode: all
-#       selector:
-#         namespaces:
-#           - default
-#         labelSelectors:
-#           'app': 'cart-app'
-#     duration: "1m"
+apiVersion: chaos-mesh.org/v1alpha1
+kind: CronChaos
+metadata:
+  name: partition-scheduled
+  namespace: chaos-mesh
+  labels:
+    app.kubernetes.io/name: chaos-testing
+  annotations:
+    chaos-mesh.org/description: "Scheduled network partition between app1 and app2 every 5 minutes"
+spec:
+  schedule: "*/5 * * * *"   # Every 5 minutes
+  type: NetworkChaos
+  networkChaos:
+    action: partition
+    mode: all
+    selector:
+      namespaces:
+        - default
+      labelSelectors:
+        'app': 'frontend-app'
+    direction: both
+    target:
+      mode: all
+      selector:
+        namespaces:
+          - default
+        labelSelectors:
+          'app': 'cart-app'
+    duration: "1m"

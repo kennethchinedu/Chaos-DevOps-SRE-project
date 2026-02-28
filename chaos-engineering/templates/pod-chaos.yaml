@@ -1,27 +1,27 @@
-# #Frontend pod Experiments
-# apiVersion: chaos-mesh.org/v1alpha1
-# kind: PodChaos
-# metadata:
-#   name: pod-kill-frontend
-#   namespace: chaos-mesh
-#   labels:
-#     app.kubernetes.io/name: chaos-testing
-#   annotations:
-#     chaos-mesh.org/description: "Kill one frontend pod to test resilience"
-# spec:
-#   action: pod-kill
-#   mode: all
-#   scheduler:
-#     cron: "@hourly"   # Optional: run hourly in staging
-#   selector:
-#     namespaces:
-#       - default
-#     labelSelectors:
-#       "app": "frontend-app"
-#   duration: "5m"
-#   patch:
-#     metadata:
-#       annotations:
-#         chaos-mesh.org/triggered-by: "Helm"  # Track why experiment ran
+#Frontend pod Experiments
+apiVersion: chaos-mesh.org/v1alpha1
+kind: PodChaos
+metadata:
+  name: pod-kill-frontend
+  namespace: chaos-mesh
+  labels:
+    app.kubernetes.io/name: chaos-testing
+  annotations:
+    chaos-mesh.org/description: "Kill one frontend pod to test resilience"
+spec:
+  action: pod-kill
+  mode: all
+  scheduler:
+    cron: "@hourly"   # Optional: run hourly in staging
+  selector:
+    namespaces:
+      - default
+    labelSelectors:
+      "app": "frontend-app"
+  duration: "5m"
+  patch:
+    metadata:
+      annotations:
+        chaos-mesh.org/triggered-by: "Helm"  # Track why experiment ran
 
 

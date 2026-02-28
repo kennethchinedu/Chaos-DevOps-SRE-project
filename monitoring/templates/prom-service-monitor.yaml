@@ -2,21 +2,22 @@ apiVersion: monitoring.coreos.com/v1
 kind: ServiceMonitor
 metadata:
   name: cart-service-servicemonitor
-  namespace: monitoring                  # Prometheus stack lives here
+  annotations:
+    meta.helm.sh/release-name: prometheus
+  namespace: monitoring
   labels:
-    app: cart-service                    # Used by Prometheus to discover
-    release: prometheus-operator
+    app: cart-service
+    release: prometheus
 spec:
   selector:
     matchLabels:
-      app: cart-service                  # Must match your Deployment / Service label
+      app: cart-service      
   namespaceSelector:
     matchNames:
-      - default                          # Namespace where cart-service runs
+      - default              
   endpoints:
-    - port: cart-port                     # Must match the Service port name
-      path: /metrics                      # Metrics path exposed by your app
-      interval: 30s                        # How often Prometheus scrapes
-      scrapeTimeout: 10s                   # Optional, max wait per scrape
-      scheme: http                         # http/https depending on your service
----
+    - port: cart-port        
+      path: /metrics
+      interval: 30s
+      scrapeTimeout: 10s
+      scheme: http
