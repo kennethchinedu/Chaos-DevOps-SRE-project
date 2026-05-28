@@ -1,13 +1,13 @@
 # # Register IAM role as EC2 principal
 # aws eks create-access-entry \
 #   --cluster-name prod-eks2 \
-#   --principal-arn arn:aws:iam::471112894147:role/karpenter-node-role-prod-eks2 \
+#   --principal-arn arn:aws:iam::<account-id>:role/karpenter-node-role-prod-eks2 \
 #   --type EC2_LINUX
 
 # # Attach compute policy so node can bootstrap
 # aws eks associate-access-policy \
 #   --cluster-name prod-eks2 \
-#   --principal-arn arn:aws:iam::471112894147:role/karpenter-node-role-prod-eks2 \
+#   --principal-arn arn:aws:iam::<account-id>:role/karpenter-node-role-prod-eks2 \
 #   --policy-arn arn:aws:eks::aws:cluster-access-policy/AmazonEKSComputeClusterPolicy \
 #   --access-scope type=cluster
 
